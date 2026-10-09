@@ -149,6 +149,44 @@ void *dynix_get(Dynix *dynix, size_t index)
 //
 //
 //
+// Search
+// o(n)
+bool dynix_exists(Dynix *dynix, void *data)
+{
+  if (dynix->is_raw)
+  {
+    // raw search
+    for (size_t i = 0; i < dynix->len; i++)
+    {
+      DynixIndex index = dynix_get_chunk_index(i);
+      void *dyn_data = dynix->chunks[index.chunk].data[index.offset];
+
+      if (dyn_data == data)
+      {
+        return true;
+      }
+    }
+  }
+  else
+  {
+    // generic search
+    for (size_t i = 0; i < dynix->len; i++)
+    {
+      DynixIndex index = dynix_get_chunk_index(i);
+      DynixElement *element = dynix->chunks[index.chunk].data[index.offset];
+
+      if (element->data == data)
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+//
+//
+//
 // Free
 void dynix_free(Dynix *dynix)
 {
@@ -184,4 +222,37 @@ void dynix_soft_free(Dynix *dynix)
       free(element);
     }
   }
+  free(dynix);
+}
+
+void dynix_safe_free(Dynix *dynix)
+{
+  bool is_raw = dynix->is_raw;
+  Dynix *freed_ptrs = dynix_new_raw(0);
+  for (size_t i = 0; i < dynix->len; i++)
+  {
+    DynixIndex index = dynix_get_chunk_index(i);
+    if (is_raw)
+    {
+      void *ptr = dynix->chunks[index.chunk].data[index.offset];
+      if (dynix_exists(freed_ptrs, ptr))
+      {
+        continue;
+      }
+      dynix_append_raw(freed_ptrs, ptr);
+    }
+    else
+    {
+      DynixElement *element = dynix->chunks[index.chunk].data[index.offset];
+      void *ptr = element->data;
+      if (!dynix_exists(freed_ptrs, ptr))
+      {
+        free(element->data);
+        dynix_append_raw(freed_ptrs, ptr);
+      }
+      free(element);
+    }
+  }
+  dynix_soft_free(freed_ptrs);
+  free(dynix);
 }

@@ -27,8 +27,22 @@ __attribute__((optimize("O0"))) void benchmark(void)
 
   printf("Time: %fms\n", (end - start) / 1000000.0);
   // do not free my appended data
-  dynix_soft_free(dynix);
-  free(b);
+  // dynix_soft_free(dynix);
+  // free(b);
+  dynix_safe_free(dynix);
+}
+
+void test_raw_exist(void)
+{
+  Dynix *dynix = dynix_new_raw(0);
+
+  size_t *b = malloc(sizeof(size_t));
+  *b = 30;
+  dynix_append_raw(dynix, b);
+
+  printf("%s\n", dynix_exists(dynix, b) ? "true" : "false");
+
+  dynix_free(dynix);
 }
 
 void test_raw_list(void)
@@ -89,12 +103,30 @@ void test_generic_list(void)
 
   printf("%d\n", dynix->capacity);
 }
+
+void test_generic_exist(void)
+{
+  Dynix *dynix = dynix_new();
+
+  size_t *b = malloc(sizeof(size_t));
+  *b = 30;
+  dynix_append_generic(dynix, b, 1);
+
+  printf("%s\n", dynix_exists(dynix, b) ? "true" : "false");
+
+  dynix_free(dynix);
+}
+
 int main()
 {
   printf("Testing generic list\n");
   test_generic_list();
   printf("\n\nTesting raw list\n");
   test_raw_list();
+  printf("\n\nTesting raw exist\n");
+  test_raw_exist();
+  printf("\n\nTesting generic exist\n");
+  test_generic_exist();
   printf("\n\nBenchmarking\n");
   benchmark();
   return 0;
