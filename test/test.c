@@ -1,7 +1,10 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "dynix.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <bits/time.h>
 
 static inline uint64_t ns(void)
 {
@@ -117,17 +120,45 @@ void test_generic_exist(void)
   dynix_free(dynix);
 }
 
+void test_raw_remove(void)
+{
+  Dynix *dynix = dynix_new_raw(0);
+
+  for (size_t i = 0; i < 10; i++)
+  {
+    size_t *b = malloc(sizeof(size_t));
+    *b = i;
+    dynix_append_raw(dynix, b);
+  }
+
+  printf("remove bef %d\n", dynix->len);
+  dynix_delete(dynix, 3);
+
+  printf("remove after %d\n", dynix->len);
+  printf("%d\n", dynix->capacity);
+
+  for (size_t i = 0; i < dynix->len; i++)
+  {
+    printf("%d\n", *(int *)dynix_get(dynix, i));
+  }
+
+  dynix_safe_free(dynix);
+}
+
 int main()
 {
+
   printf("Testing generic list\n");
   test_generic_list();
   printf("\n\nTesting raw list\n");
   test_raw_list();
+  printf("\n\nTesting raw remove\n");
+  test_raw_remove();
   printf("\n\nTesting raw exist\n");
   test_raw_exist();
   printf("\n\nTesting generic exist\n");
   test_generic_exist();
   printf("\n\nBenchmarking\n");
-  benchmark();
+  // benchmark();
   return 0;
 }
