@@ -17,7 +17,7 @@ static inline uint64_t ns(void)
 
 __attribute__((optimize("O0"))) void benchmark(void)
 {
-  Dynix *dynix = dynix_new_raw(0);
+  Dynix *dynix = dynix_new_raw();
   size_t *b = malloc(sizeof(size_t));
   *b = 100;
 
@@ -37,7 +37,7 @@ __attribute__((optimize("O0"))) void benchmark(void)
 
 void test_raw_exist(void)
 {
-  Dynix *dynix = dynix_new_raw(0);
+  Dynix *dynix = dynix_new_raw();
 
   size_t *b = malloc(sizeof(size_t));
   *b = 30;
@@ -50,7 +50,7 @@ void test_raw_exist(void)
 
 void test_raw_list(void)
 {
-  Dynix *dynix = dynix_new_raw(0);
+  Dynix *dynix = dynix_new_raw();
 
   for (size_t i = 0; i < 10; i++)
   {
@@ -122,7 +122,7 @@ void test_generic_exist(void)
 
 void test_raw_remove(void)
 {
-  Dynix *dynix = dynix_new_raw(0);
+  Dynix *dynix = dynix_new_raw();
 
   for (size_t i = 0; i < 10; i++)
   {
@@ -159,6 +159,6 @@ int main()
   printf("\n\nTesting generic exist\n");
   test_generic_exist();
   printf("\n\nBenchmarking\n");
-  // benchmark();
+  benchmark();
   return 0;
 }

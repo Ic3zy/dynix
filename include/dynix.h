@@ -69,7 +69,7 @@ Dynix *dynix_new()
   return dynix;
 }
 
-Dynix *dynix_new_raw(size_t capacity)
+Dynix *dynix_new_raw()
 {
   Dynix *dynix = calloc(1, sizeof(Dynix));
 
@@ -216,6 +216,13 @@ void dynix_delete(Dynix *dynix, size_t index)
   free(data);
 }
 
+void *dynix_pop(Dynix *dynix, size_t index)
+{
+  void *data = dynix_get(dynix, index);
+  dynix_remove(dynix, index);
+  return data;
+}
+
 //
 //
 //
@@ -229,6 +236,7 @@ void dynix_free(Dynix *dynix)
     DynixIndex index = dynix_get_chunk_index(i);
     if (is_raw)
       free(dynix->chunks[index.chunk].data[index.offset]);
+
     else
     {
       DynixElement *element = dynix->chunks[index.chunk].data[index.offset];
@@ -272,7 +280,7 @@ void dynix_soft_free(Dynix *dynix)
 void dynix_safe_free(Dynix *dynix)
 {
   bool is_raw = dynix->is_raw;
-  Dynix *freed_ptrs = dynix_new_raw(0);
+  Dynix *freed_ptrs = dynix_new_raw();
   size_t last_freed_chunk = 0;
 
   for (size_t i = 0; i < dynix->len; i++)
@@ -282,9 +290,8 @@ void dynix_safe_free(Dynix *dynix)
     {
       void *ptr = dynix->chunks[index.chunk].data[index.offset];
       if (dynix_exists(freed_ptrs, ptr))
-      {
         continue;
-      }
+
       dynix_append_raw(freed_ptrs, ptr);
     }
     else

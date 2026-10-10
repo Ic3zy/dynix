@@ -22,7 +22,7 @@ Dynix provides two different array modes.
 Raw mode stores `void *` directly without additional type metadata.
 
 ```c
-Dynix *dynix = dynix_new_raw(10);
+Dynix *dynix = dynix_new_raw();
 
 dynix_append_raw(dynix, data);
 ```
@@ -34,7 +34,7 @@ This mode is intended when the caller already knows what each element contains a
 Generic mode stores each element together with its type information.
 
 ```c
-Dynix *dynix = dynix_new(10);
+Dynix *dynix = dynix_new();
 
 dynix_append_generic(dynix, data, type);
 ```
@@ -58,7 +58,7 @@ This allows different types to coexist in the same array.
 
 int main(void)
 {
-    Dynix *dynix = dynix_new_raw(10);
+    Dynix *dynix = dynix_new_raw();
 
     for (size_t i = 0; i < 10; i++)
     {
@@ -85,8 +85,8 @@ int main(void)
 ### Creation
 
 ```c
-Dynix *dynix_new(size_t capacity);
-Dynix *dynix_new_raw(size_t capacity);
+Dynix *dynix_new(void);
+Dynix *dynix_new_raw(void);
 ```
 
 `dynix_new()` creates a generic Dynix array.
