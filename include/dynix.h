@@ -5,6 +5,8 @@
 #include <stdbool.h>
 
 #define DYNIX_START_CHUNK_SIZE 256
+#define DYNIX_CHUNK_SHIFT __builtin_ctzll(DYNIX_START_CHUNK_SIZE)
+#define DYNIX_CHUNK_MASK (DYNIX_START_CHUNK_SIZE - 1)
 
 typedef struct
 {
@@ -43,9 +45,9 @@ DynixIndex dynix_get_chunk_index(size_t index)
         .chunk = 0,
         .offset = 0};
 
-  size_t x = (index >> 8) + 1;
+  size_t x = (index >> DYNIX_CHUNK_SHIFT) + 1;
   size_t chunk = 63 - __builtin_clzll(x);
-  size_t start = 256 * ((1ULL << chunk) - 1);
+  size_t start = DYNIX_START_CHUNK_SIZE * ((1ULL << chunk) - 1);
 
   return (DynixIndex){
       .chunk = chunk,
